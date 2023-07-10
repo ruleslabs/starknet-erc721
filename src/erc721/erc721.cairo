@@ -61,7 +61,6 @@ mod ERC721 {
   // Storage
   //
 
-
   #[storage]
   struct Storage {
     _name: felt252,
@@ -71,6 +70,39 @@ mod ERC721 {
     _token_approvals: LegacyMap<u256, starknet::ContractAddress>,
     _operator_approvals: LegacyMap<(starknet::ContractAddress, starknet::ContractAddress), bool>,
     _token_uri: LegacyMap<u256, felt252>,
+  }
+
+  //
+  // Events
+  //
+
+  #[event]
+  #[derive(Drop, starknet::Event)]
+  enum Event {
+    Transfer: Transfer,
+    Approval: Approval,
+    ApprovalForAll: ApprovalForAll,
+  }
+
+  #[derive(Drop, starknet::Event)]
+  struct Transfer {
+    from: starknet::ContractAddress,
+    to: starknet::ContractAddress,
+    token_id: u256,
+  }
+
+  #[derive(Drop, starknet::Event)]
+  struct Approval {
+    owner: starknet::ContractAddress,
+    approved: starknet::ContractAddress,
+    token_id: u256,
+  }
+
+  #[derive(Drop, starknet::Event)]
+  struct ApprovalForAll {
+    owner: starknet::ContractAddress,
+    operator: starknet::ContractAddress,
+    approved: bool,
   }
 
   //
@@ -199,6 +231,72 @@ mod ERC721 {
       let owner = self._owner_of(token_id);
 
       (owner == spender) | self.is_approved_for_all(owner, spender) | (spender == self.get_approved(token_id))
+    }
+
+    fn _mint(ref self: ContractState, to: starknet::ContractAddress, token_id: u256) {
+        assert(!to.is_zero(), 'ERC721: invalid receiver');
+        assert(!self._exists(token_id), 'ERC721: token already minted');
+
+        // Update balances
+        self._balances.write(to, self._balances.read(to) + 1);
+
+        // Update token_id owner
+        self._owners.write(token_id, to);
+
+        // Emit event
+        self.emit(
+          Event::Transfer(
+            Transfer { from: Zeroable::zero(), to, token_id }
+          )
+        );
+    }
+
+    fn _transfer(
+      ref self: ContractState,
+      from: starknet::ContractAddress,
+      to: starknet::ContractAddress,
+      token_id: u256
+    ) {
+        assert(!to.is_zero(), 'ERC721: invalid receiver');
+        let owner = self._owner_of(token_id);
+        assert(from == owner, 'ERC721: wrong sender');
+
+        // Implicit clear approvals, no need to emit an event
+        self._token_approvals.write(token_id, Zeroable::zero());
+
+        // Update balances
+        self._balances.write(from, self._balances.read(from) - 1);
+        self._balances.write(to, self._balances.read(to) + 1);
+
+        // Update token_id owner
+        self._owners.write(token_id, to);
+
+        // Emit event
+        self.emit(
+          Event::Transfer(
+            Transfer { from, to, token_id }
+          )
+        );
+    }
+
+    fn _burn(ref self: ContractState, token_id: u256) {
+        let owner = self._owner_of(token_id);
+
+        // Implicit clear approvals, no need to emit an event
+        self._token_approvals.write(token_id, Zeroable::zero());
+
+        // Update balances
+        self._balances.write(owner, self._balances.read(owner) - 1);
+
+        // Delete owner
+        self._owners.write(token_id, Zeroable::zero());
+
+        // Emit event
+        self.emit(
+          Event::Transfer(
+            Transfer { from: owner, to: Zeroable::zero(), token_id }
+          )
+        )
     }
   }
 }

@@ -9,7 +9,7 @@ trait IERC165<TContractState> {
 #[starknet::contract]
 mod ERC165 {
   // locals
-  use rules_account::introspection::erc165;
+  use rules_erc721::introspection::erc165;
 
   //
   // Storage

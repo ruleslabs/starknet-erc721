@@ -48,14 +48,19 @@ trait ERC721ABI<TContractState> {
 #[starknet::contract]
 mod ERC721 {
   use zeroable::Zeroable;
+  use rules_account::account;
+  use rules_utils::introspection::dual_erc165::{ DualCaseERC165, DualCaseERC165Trait };
 
   // locals
-  use rules_erc721::erc721::interface::IERC721;
+  use rules_erc721::erc721::interface::{ IERC721, IERC721Camel };
 
   use rules_erc721::erc721;
 
-  use rules_erc721::introspection::erc165;
-  use rules_erc721::introspection::erc165::{ ERC165, IERC165 };
+  use rules_utils::introspection::erc165;
+  use rules_utils::introspection::erc165::{ ERC165, IERC165 };
+
+  // Dispatchers
+  use rules_erc721::erc721::dual_erc721_receiver::{ DualCaseERC721Receiver, DualCaseERC721ReceiverTrait };
 
   //
   // Storage
@@ -139,7 +144,7 @@ mod ERC721 {
     }
 
     fn owner_of(self: @ContractState, token_id: u256) -> starknet::ContractAddress {
-      self._owner_of(token_id)
+      self._owner_of(:token_id)
     }
 
     fn get_approved(self: @ContractState, token_id: u256) -> starknet::ContractAddress {
@@ -161,7 +166,11 @@ mod ERC721 {
       to: starknet::ContractAddress,
       token_id: u256
     ) {
-      // TODO
+      let caller = starknet::get_caller_address();
+
+      assert(self._is_approved_or_owner(spender: caller, :token_id), 'ERC721: unauthorized caller');
+
+      self._transfer(:from, :to, :token_id);
     }
 
     fn safe_transfer_from(
@@ -171,15 +180,81 @@ mod ERC721 {
       token_id: u256,
       data: Span<felt252>
     ) {
-      // TODO
+      let caller = starknet::get_caller_address();
+
+      assert(self._is_approved_or_owner(spender: caller, :token_id), 'ERC721: unauthorized caller');
+
+      self._safe_transfer(:from, :to, :token_id, :data);
     }
 
     fn approve(ref self: ContractState, to: starknet::ContractAddress, token_id: u256) {
-      // TODO
+      let owner = self._owner_of(token_id);
+
+      let caller = starknet::get_caller_address();
+      assert((owner == caller) | self.is_approved_for_all(:owner, operator: caller), 'ERC721: unauthorized caller');
+
+      self._approve(to, token_id);
     }
 
     fn set_approval_for_all(ref self: ContractState, operator: starknet::ContractAddress, approved: bool) {
-      // TODO
+      let caller = starknet::get_caller_address();
+
+      self._set_approval_for_all(owner: caller, :operator, :approved);
+    }
+  }
+
+  //
+  // IERC721 impl
+  //
+
+  #[external(v0)]
+  impl IERC721CamelImpl of erc721::interface::IERC721Camel<ContractState> {
+
+    fn tokenUri(self: @ContractState, tokenId: u256) -> felt252 {
+      self.token_uri(token_id: tokenId)
+    }
+
+    fn balanceOf(self: @ContractState, account: starknet::ContractAddress) -> u256 {
+      self.balance_of(:account)
+    }
+
+    fn ownerOf(self: @ContractState, tokenId: u256) -> starknet::ContractAddress {
+      self.owner_of(token_id: tokenId)
+    }
+
+    fn getApproved(self: @ContractState, tokenId: u256) -> starknet::ContractAddress {
+      self.get_approved(token_id: tokenId)
+    }
+
+    fn isApprovedForAll(
+      self: @ContractState,
+      owner: starknet::ContractAddress,
+      operator: starknet::ContractAddress
+    ) -> bool {
+      self.is_approved_for_all(:owner, :operator)
+    }
+
+    fn transferFrom(
+      ref self: ContractState,
+      from: starknet::ContractAddress,
+      to: starknet::ContractAddress,
+      tokenId: u256
+    ) {
+      self.transfer_from(:from, :to, token_id: tokenId);
+    }
+
+    fn safeTransferFrom(
+      ref self: ContractState,
+      from: starknet::ContractAddress,
+      to: starknet::ContractAddress,
+      tokenId: u256,
+      data: Span<felt252>
+    ) {
+      self.safe_transfer_from(:from, :to, token_id: tokenId, :data);
+    }
+
+    fn setApprovalForAll(ref self: ContractState, operator: starknet::ContractAddress, approved: bool) {
+      self.set_approval_for_all(:operator, :approved);
     }
   }
 
@@ -233,22 +308,54 @@ mod ERC721 {
       (owner == spender) | self.is_approved_for_all(owner, spender) | (spender == self.get_approved(token_id))
     }
 
+    fn _approve(ref self: ContractState, to: starknet::ContractAddress, token_id: u256) {
+      let owner = self._owner_of(token_id);
+      assert(owner != to, 'ERC721: approval to owner');
+
+      self._token_approvals.write(token_id, to);
+
+      // emit event
+      self.emit(
+        Event::Approval(
+          Approval { owner, approved: to, token_id }
+        )
+      );
+    }
+
+    fn _set_approval_for_all(
+      ref self: ContractState,
+      owner: starknet::ContractAddress,
+      operator: starknet::ContractAddress,
+      approved: bool
+    ) {
+      assert(owner != operator, 'ERC721: self approval');
+
+      self._operator_approvals.write((owner, operator), approved);
+
+      // emit event
+      self.emit(
+        Event::ApprovalForAll(
+          ApprovalForAll { owner, operator, approved }
+        )
+      );
+    }
+
     fn _mint(ref self: ContractState, to: starknet::ContractAddress, token_id: u256) {
-        assert(!to.is_zero(), 'ERC721: invalid receiver');
-        assert(!self._exists(token_id), 'ERC721: token already minted');
+      assert(!to.is_zero(), 'ERC721: invalid receiver');
+      assert(!self._exists(token_id), 'ERC721: token already minted');
 
-        // Update balances
-        self._balances.write(to, self._balances.read(to) + 1);
+      // Update balances
+      self._balances.write(to, self._balances.read(to) + 1);
 
-        // Update token_id owner
-        self._owners.write(token_id, to);
+      // Update token_id owner
+      self._owners.write(token_id, to);
 
-        // Emit event
-        self.emit(
-          Event::Transfer(
-            Transfer { from: Zeroable::zero(), to, token_id }
-          )
-        );
+      // Emit event
+      self.emit(
+        Event::Transfer(
+          Transfer { from: Zeroable::zero(), to, token_id }
+        )
+      );
     }
 
     fn _transfer(
@@ -257,46 +364,98 @@ mod ERC721 {
       to: starknet::ContractAddress,
       token_id: u256
     ) {
-        assert(!to.is_zero(), 'ERC721: invalid receiver');
-        let owner = self._owner_of(token_id);
-        assert(from == owner, 'ERC721: wrong sender');
+      assert(!to.is_zero(), 'ERC721: invalid receiver');
+      let owner = self._owner_of(token_id);
+      assert(from == owner, 'ERC721: wrong sender');
 
-        // Implicit clear approvals, no need to emit an event
-        self._token_approvals.write(token_id, Zeroable::zero());
+      // Implicit clear approvals, no need to emit an event
+      self._token_approvals.write(token_id, Zeroable::zero());
 
-        // Update balances
-        self._balances.write(from, self._balances.read(from) - 1);
-        self._balances.write(to, self._balances.read(to) + 1);
+      // Update balances
+      self._balances.write(from, self._balances.read(from) - 1);
+      self._balances.write(to, self._balances.read(to) + 1);
 
-        // Update token_id owner
-        self._owners.write(token_id, to);
+      // Update token_id owner
+      self._owners.write(token_id, to);
 
-        // Emit event
-        self.emit(
-          Event::Transfer(
-            Transfer { from, to, token_id }
-          )
-        );
+      // Emit event
+      self.emit(
+        Event::Transfer(
+          Transfer { from, to, token_id }
+        )
+      );
     }
 
     fn _burn(ref self: ContractState, token_id: u256) {
-        let owner = self._owner_of(token_id);
+      let owner = self._owner_of(token_id);
 
-        // Implicit clear approvals, no need to emit an event
-        self._token_approvals.write(token_id, Zeroable::zero());
+      // Implicit clear approvals, no need to emit an event
+      self._token_approvals.write(token_id, Zeroable::zero());
 
-        // Update balances
-        self._balances.write(owner, self._balances.read(owner) - 1);
+      // Update balances
+      self._balances.write(owner, self._balances.read(owner) - 1);
 
-        // Delete owner
-        self._owners.write(token_id, Zeroable::zero());
+      // Delete owner
+      self._owners.write(token_id, Zeroable::zero());
 
-        // Emit event
-        self.emit(
-          Event::Transfer(
-            Transfer { from: owner, to: Zeroable::zero(), token_id }
-          )
+      // Emit event
+      self.emit(
+        Event::Transfer(
+          Transfer { from: owner, to: Zeroable::zero(), token_id }
         )
+      )
+    }
+
+    fn _safe_mint(ref self: ContractState, to: starknet::ContractAddress, token_id: u256, data: Span<felt252>) {
+      self._mint(to, token_id);
+
+      assert(
+        self._check_on_erc721_received(Zeroable::zero(), to, token_id, data),
+        'ERC721: safe mint failed'
+      );
+    }
+
+    fn _safe_transfer(
+      ref self: ContractState,
+      from: starknet::ContractAddress,
+      to: starknet::ContractAddress,
+      token_id: u256,
+      data: Span<felt252>
+    ) {
+      self._transfer(:from, :to, :token_id);
+
+      assert(self._check_on_erc721_received(:from, :to, :token_id, :data), 'ERC721: safe transfer failed');
+    }
+
+    fn _set_token_uri(ref self: ContractState, token_id: u256, token_uri: felt252) {
+      assert(self._exists(token_id), 'ERC721: invalid token ID');
+
+      self._token_uri.write(token_id, token_uri)
+    }
+
+    fn _check_on_erc721_received(
+      self: @ContractState,
+      from: starknet::ContractAddress,
+      to: starknet::ContractAddress,
+      token_id: u256,
+      data: Span<felt252>
+    ) -> bool {
+      let ERC165 = DualCaseERC165 { contract_address: to };
+
+      if (ERC165.supports_interface(erc721::interface::IERC721_RECEIVER_ID)) {
+        let ERC721Receiver = DualCaseERC721Receiver { contract_address: to };
+
+        let caller = starknet::get_caller_address();
+
+        ERC721Receiver.on_erc721_received(
+          operator: caller,
+          :from,
+          :token_id,
+          :data
+        ) == erc721::interface::IERC721_RECEIVER_ID
+      } else {
+        ERC165.supports_interface(account::interface::IACCOUNT_ID)
+      }
     }
   }
 }

@@ -45,6 +45,42 @@ trait IERC721<TContractState> {
 }
 
 #[starknet::interface]
+trait IERC721Camel<TContractState> {
+  fn tokenUri(self: @TContractState, tokenId: u256) -> felt252;
+
+  fn balanceOf(self: @TContractState, account: starknet::ContractAddress) -> u256;
+
+  fn ownerOf(self: @TContractState, tokenId: u256) -> starknet::ContractAddress;
+
+  fn getApproved(self: @TContractState, tokenId: u256) -> starknet::ContractAddress;
+
+  fn isApprovedForAll(
+    self: @TContractState,
+    owner: starknet::ContractAddress,
+    operator: starknet::ContractAddress
+  ) -> bool;
+
+  fn transferFrom(
+    ref self: TContractState,
+    from: starknet::ContractAddress,
+    to: starknet::ContractAddress,
+    tokenId: u256
+  );
+
+  fn safeTransferFrom(
+    ref self: TContractState,
+    from: starknet::ContractAddress,
+    to: starknet::ContractAddress,
+    tokenId: u256,
+    data: Span<felt252>
+  );
+
+  fn setApprovalForAll(ref self: TContractState, operator: starknet::ContractAddress, approved: bool);
+}
+
+// ERC721 Receiver
+
+#[starknet::interface]
 trait IERC721Receiver<TContractState> {
   fn on_erc721_received(
     ref self: TContractState,
@@ -52,5 +88,16 @@ trait IERC721Receiver<TContractState> {
     from: starknet::ContractAddress,
     token_id: u256,
     data: Span<felt252>
-  ) -> felt252;
+  ) -> u32;
+}
+
+#[starknet::interface]
+trait IERC721ReceiverCamel<TContractState> {
+  fn onERC721Received(
+    ref self: TContractState,
+    operator: starknet::ContractAddress,
+    from: starknet::ContractAddress,
+    tokenId: u256,
+    data: Span<felt252>
+  ) -> u32;
 }

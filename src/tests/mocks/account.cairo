@@ -1,5 +1,7 @@
 #[starknet::contract]
 mod Account {
+  use rules_account::account::interface::ISRC6_ID;
+
   #[storage]
   struct Storage { }
 
@@ -7,8 +9,8 @@ mod Account {
   fn constructor(ref self: ContractState) {}
 
   #[external(v0)]
-  fn supports_interface(self: @ContractState, interface_id: u32) -> bool {
-    if (interface_id == rules_account::account::interface::IACCOUNT_ID) {
+  fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
+    if (interface_id == ISRC6_ID) {
       true
     } else {
       false
@@ -18,6 +20,8 @@ mod Account {
 
 #[starknet::contract]
 mod CamelAccount {
+  use rules_account::account::interface::ISRC6_ID;
+
   #[storage]
   struct Storage { }
 
@@ -25,8 +29,8 @@ mod CamelAccount {
   fn constructor(ref self: ContractState) {}
 
   #[external(v0)]
-  fn supportsInterface(self: @ContractState, interfaceId: u32) -> bool {
-    if (interfaceId == rules_account::account::interface::IACCOUNT_ID) {
+  fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
+    if (interfaceId == ISRC6_ID) {
       true
     } else {
       false

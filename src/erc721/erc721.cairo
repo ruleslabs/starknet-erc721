@@ -40,24 +40,23 @@ trait ERC721ABI<TContractState> {
 
   fn set_approval_for_all(ref self: TContractState, operator: starknet::ContractAddress, approved: bool);
 
-  // IERC165
+  // ISRC5
 
-  fn supports_interface(self: @TContractState, interface_id: u32) -> bool;
+  fn supports_interface(self: @TContractState, interface_id: felt252) -> bool;
 }
 
 #[starknet::contract]
 mod ERC721 {
   use zeroable::Zeroable;
   use rules_account::account;
-  use rules_utils::introspection::dual_erc165::{ DualCaseERC165, DualCaseERC165Trait };
+  use rules_utils::introspection::dual_src5::{ DualCaseSRC5, DualCaseSRC5Trait };
 
   // locals
-  use rules_erc721::erc721::interface::{ IERC721, IERC721Camel };
+  use rules_erc721::erc721::interface;
+  use rules_erc721::erc721::interface::IERC721;
 
-  use rules_erc721::erc721;
-
-  use rules_utils::introspection::erc165;
-  use rules_utils::introspection::erc165::{ ERC165, IERC165 };
+  use rules_utils::introspection::src5::SRC5;
+  use rules_utils::introspection::interface::{ ISRC5 };
 
   // Dispatchers
   use rules_erc721::erc721::dual_erc721_receiver::{ DualCaseERC721Receiver, DualCaseERC721ReceiverTrait };
@@ -124,7 +123,7 @@ mod ERC721 {
   //
 
   #[external(v0)]
-  impl IERC721Impl of erc721::interface::IERC721<ContractState> {
+  impl IERC721Impl of interface::IERC721<ContractState> {
     fn name(self: @ContractState) -> felt252 {
       self._name.read()
     }
@@ -208,7 +207,7 @@ mod ERC721 {
   //
 
   #[external(v0)]
-  impl IERC721CamelImpl of erc721::interface::IERC721Camel<ContractState> {
+  impl IERC721CamelImpl of interface::IERC721Camel<ContractState> {
 
     fn tokenUri(self: @ContractState, tokenId: u256) -> felt252 {
       self.token_uri(token_id: tokenId)
@@ -259,31 +258,31 @@ mod ERC721 {
   }
 
   //
-  // IERC165 impl
+  // ISRC5 impl
   //
 
   #[external(v0)]
-  impl IERC165Impl of erc165::IERC165<ContractState> {
-    fn supports_interface(self: @ContractState, interface_id: u32) -> bool {
+  impl ISRC5Impl of ISRC5<ContractState> {
+    fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
       if (
-        (interface_id == erc721::interface::IERC721_ID) |
-        (interface_id == erc721::interface::IERC721_METADATA_ID)
+        (interface_id == interface::IERC721_ID) |
+        (interface_id == interface::IERC721_METADATA_ID)
       ) {
         true
       } else {
-        let erc165_self = ERC165::unsafe_new_contract_state();
+        let src5_self = SRC5::unsafe_new_contract_state();
 
-        erc165_self.supports_interface(:interface_id)
+        src5_self.supports_interface(:interface_id)
       }
     }
   }
 
   //
-  // Helpers
+  // Internals
   //
 
   #[generate_trait]
-  impl HelperImpl of HelperTrait {
+  impl InternalImpl of InternalTrait {
     fn initializer(ref self: ContractState, name_: felt252, symbol_: felt252) {
       self._name.write(name_);
       self._symbol.write(symbol_);
@@ -440,21 +439,16 @@ mod ERC721 {
       token_id: u256,
       data: Span<felt252>
     ) -> bool {
-      let ERC165 = DualCaseERC165 { contract_address: to };
+      let SRC5 = DualCaseSRC5 { contract_address: to };
 
-      if (ERC165.supports_interface(erc721::interface::IERC721_RECEIVER_ID)) {
+      if (SRC5.supports_interface(interface::IERC721_RECEIVER_ID)) {
         let ERC721Receiver = DualCaseERC721Receiver { contract_address: to };
 
         let caller = starknet::get_caller_address();
 
-        ERC721Receiver.on_erc721_received(
-          operator: caller,
-          :from,
-          :token_id,
-          :data
-        ) == erc721::interface::IERC721_RECEIVER_ID
+        ERC721Receiver.on_erc721_received(operator: caller, :from, :token_id, :data) == interface::IERC721_RECEIVER_ID
       } else {
-        ERC165.supports_interface(account::interface::IACCOUNT_ID)
+        SRC5.supports_interface(account::interface::ISRC6_ID)
       }
     }
   }

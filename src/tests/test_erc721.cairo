@@ -2,22 +2,18 @@ use starknet::testing;
 use array::ArrayTrait;
 use traits::Into;
 use zeroable::Zeroable;
+use rules_utils::introspection::interface::{ ISRC5, ISRC5_ID };
 
 // locals
-use rules_utils::introspection::erc165;
 use rules_erc721::erc721;
 use rules_erc721::erc721::erc721::ERC721;
 use rules_erc721::erc721::erc721::ERC721::{
   ContractState as ERC721ContractState,
-  IERC721,
-  IERC721Camel,
-  HelperTrait as ERC721HelperTrait,
-  IERC165 as ERC721_IERC165,
-};
-use rules_erc721::erc721::erc721::ERC721::{
+  InternalTrait as ERC721InternalTrait,
   _owners::InternalContractStateTrait as ERC721_ownersInternalContractStateTrait,
   _token_approvals::InternalContractStateTrait as ERC721_token_approvalsInternalContractStateTrait,
 };
+use rules_erc721::erc721::interface::{ IERC721, IERC721Camel };
 
 use super::utils;
 use super::mocks::account::{ Account, CamelAccount };
@@ -128,7 +124,7 @@ fn test_initialize() {
 
   assert(erc721_self.supports_interface(erc721::interface::IERC721_ID), 'Missing interface ID');
   assert(erc721_self.supports_interface(erc721::interface::IERC721_METADATA_ID), 'missing interface ID');
-  assert(erc721_self.supports_interface(erc165::IERC165_ID), 'missing interface ID');
+  assert(erc721_self.supports_interface(ISRC5_ID), 'missing interface ID');
 }
 
 //
@@ -1367,7 +1363,7 @@ fn test__set_token_uri_nonexistent() {
 }
 
 //
-// Helpers
+// Internals
 //
 
 fn assert_state_before_transfer(

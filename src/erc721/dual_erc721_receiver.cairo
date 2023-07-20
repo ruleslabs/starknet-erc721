@@ -21,7 +21,7 @@ trait DualCaseERC721ReceiverTrait {
     from: starknet::ContractAddress,
     token_id: u256,
     data: Span<felt252>
-  ) -> u32;
+  ) -> felt252;
 }
 
 impl DualCaseERC721ReceiverImpl of DualCaseERC721ReceiverTrait {
@@ -31,7 +31,7 @@ impl DualCaseERC721ReceiverImpl of DualCaseERC721ReceiverTrait {
     from: starknet::ContractAddress,
     token_id: u256,
     data: Span<felt252>
-  ) -> u32 {
+  ) -> felt252 {
     let mut args = ArrayTrait::new();
     args.append_serde(operator);
     args.append_serde(from);

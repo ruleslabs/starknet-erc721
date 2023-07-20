@@ -1,8 +1,8 @@
 use array::SpanSerde;
 
-const IERC721_ID: u32 = 0x80ac58cd;
-const IERC721_METADATA_ID: u32 = 0x5b5e139f;
-const IERC721_RECEIVER_ID: u32 = 0x150b7a02;
+const IERC721_ID: felt252 = 0x33eb2f84c309543403fd69f0d0f363781ef06ef6faeb0131ff16ea3175bd943;
+const IERC721_METADATA_ID: felt252 = 0x6069a70848f907fa57668ba1875164eb4dcee693952468581406d131081bbd;
+const IERC721_RECEIVER_ID: felt252 = 0x3a0dff5f70d80458ad14ae37bb182a728e3c8cdda0402a5daa86620bdf910bc;
 
 #[starknet::interface]
 trait IERC721<TContractState> {
@@ -88,7 +88,7 @@ trait IERC721Receiver<TContractState> {
     from: starknet::ContractAddress,
     token_id: u256,
     data: Span<felt252>
-  ) -> u32;
+  ) -> felt252;
 }
 
 #[starknet::interface]
@@ -99,5 +99,5 @@ trait IERC721ReceiverCamel<TContractState> {
     from: starknet::ContractAddress,
     tokenId: u256,
     data: Span<felt252>
-  ) -> u32;
+  ) -> felt252;
 }

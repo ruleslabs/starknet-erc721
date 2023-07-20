@@ -8,8 +8,9 @@ mod ERC721Receiver {
 
   // locals
   use rules_erc721::erc721::interface::{ IERC721Receiver, IERC721_RECEIVER_ID };
-  use rules_utils::introspection::erc165::{ ERC165, IERC165 };
-  use rules_utils::introspection::erc165::ERC165::HelperTrait;
+  use rules_utils::introspection::src5::SRC5;
+  use rules_utils::introspection::interface::ISRC5;
+  use rules_utils::introspection::src5::SRC5::InternalTrait;
 
   //
   // Storage
@@ -24,9 +25,9 @@ mod ERC721Receiver {
 
   #[constructor]
   fn constructor(ref self: ContractState) {
-    let mut erc165_self = ERC165::unsafe_new_contract_state();
+    let mut src5_self = SRC5::unsafe_new_contract_state();
 
-    erc165_self._register_interface(interface_id: IERC721_RECEIVER_ID);
+    src5_self._register_interface(interface_id: IERC721_RECEIVER_ID);
   }
 
   //
@@ -41,7 +42,7 @@ mod ERC721Receiver {
       from: starknet::ContractAddress,
       token_id: u256,
       data: Span<felt252>
-    ) -> u32 {
+    ) -> felt252 {
       if (*data.at(0) == super::SUCCESS) {
         IERC721_RECEIVER_ID
       } else {
@@ -51,10 +52,10 @@ mod ERC721Receiver {
   }
 
   #[external(v0)]
-  fn supports_interface(self: @ContractState, interface_id: u32) -> bool {
-    let erc165_self = ERC165::unsafe_new_contract_state();
+  fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
+    let src5_self = SRC5::unsafe_new_contract_state();
 
-    erc165_self.supports_interface(:interface_id)
+    src5_self.supports_interface(:interface_id)
   }
 }
 
@@ -65,8 +66,9 @@ mod CamelERC721Receiver {
 
   // locals
   use rules_erc721::erc721::interface::{ IERC721ReceiverCamel, IERC721_RECEIVER_ID };
-  use rules_utils::introspection::erc165::{ ERC165, IERC165 };
-  use rules_utils::introspection::erc165::ERC165::HelperTrait;
+  use rules_utils::introspection::src5::SRC5;
+  use rules_utils::introspection::interface::ISRC5;
+  use rules_utils::introspection::src5::SRC5::InternalTrait;
 
   //
   // Storage
@@ -81,9 +83,9 @@ mod CamelERC721Receiver {
 
   #[constructor]
   fn constructor(ref self: ContractState) {
-    let mut erc165_self = ERC165::unsafe_new_contract_state();
+    let mut src5_self = SRC5::unsafe_new_contract_state();
 
-    erc165_self._register_interface(interface_id: IERC721_RECEIVER_ID);
+    src5_self._register_interface(interface_id: IERC721_RECEIVER_ID);
   }
 
   //
@@ -98,7 +100,7 @@ mod CamelERC721Receiver {
       from: starknet::ContractAddress,
       tokenId: u256,
       data: Span<felt252>
-    ) -> u32 {
+    ) -> felt252 {
       if (*data.at(0) == super::SUCCESS) {
         IERC721_RECEIVER_ID
       } else {
@@ -108,10 +110,10 @@ mod CamelERC721Receiver {
   }
 
   #[external(v0)]
-  fn supportsInterface(self: @ContractState, interfaceId: u32) -> bool {
-    let erc165_self = ERC165::unsafe_new_contract_state();
+  fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
+    let src5_self = SRC5::unsafe_new_contract_state();
 
-    erc165_self.supports_interface(interface_id: interfaceId)
+    src5_self.supports_interface(interface_id: interfaceId)
   }
 }
 

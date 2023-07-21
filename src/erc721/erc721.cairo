@@ -53,7 +53,7 @@ mod ERC721 {
 
   // locals
   use rules_erc721::erc721::interface;
-  use rules_erc721::erc721::interface::IERC721;
+  use rules_erc721::erc721::interface::{ IERC721, IERC721Metadata };
 
   use rules_utils::introspection::src5::SRC5;
   use rules_utils::introspection::interface::{ ISRC5 };
@@ -124,19 +124,6 @@ mod ERC721 {
 
   #[external(v0)]
   impl IERC721Impl of interface::IERC721<ContractState> {
-    fn name(self: @ContractState) -> felt252 {
-      self._name.read()
-    }
-
-    fn symbol(self: @ContractState) -> felt252 {
-      self._symbol.read()
-    }
-
-    fn token_uri(self: @ContractState, token_id: u256) -> felt252 {
-      assert(self._exists(token_id), 'ERC721: invalid token ID');
-      self._token_uri.read(token_id)
-    }
-
     fn balance_of(self: @ContractState, account: starknet::ContractAddress) -> u256 {
       assert(!account.is_zero(), 'ERC721: invalid account');
       self._balances.read(account)
@@ -203,16 +190,11 @@ mod ERC721 {
   }
 
   //
-  // IERC721 impl
+  // IERC721 Camel impl
   //
 
   #[external(v0)]
   impl IERC721CamelImpl of interface::IERC721Camel<ContractState> {
-
-    fn tokenUri(self: @ContractState, tokenId: u256) -> felt252 {
-      self.token_uri(token_id: tokenId)
-    }
-
     fn balanceOf(self: @ContractState, account: starknet::ContractAddress) -> u256 {
       self.balance_of(:account)
     }
@@ -254,6 +236,37 @@ mod ERC721 {
 
     fn setApprovalForAll(ref self: ContractState, operator: starknet::ContractAddress, approved: bool) {
       self.set_approval_for_all(:operator, :approved);
+    }
+  }
+
+  //
+  // IERC721 Metadata impl
+  //
+
+  #[external(v0)]
+  impl IERC721MetadataImpl of interface::IERC721Metadata<ContractState> {
+    fn name(self: @ContractState) -> felt252 {
+      self._name.read()
+    }
+
+    fn symbol(self: @ContractState) -> felt252 {
+      self._symbol.read()
+    }
+
+    fn token_uri(self: @ContractState, token_id: u256) -> felt252 {
+      assert(self._exists(token_id), 'ERC721: invalid token ID');
+      self._token_uri.read(token_id)
+    }
+  }
+
+  //
+  // IERC721 Metadata Camel impl
+  //
+
+  #[external(v0)]
+  impl IERC721MetadataCamelImpl of interface::IERC721MetadataCamel<ContractState> {
+    fn tokenUri(self: @ContractState, tokenId: u256) -> felt252 {
+      self.token_uri(token_id: tokenId)
     }
   }
 

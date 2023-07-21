@@ -13,7 +13,7 @@ use rules_erc721::erc721::erc721::ERC721::{
   _owners::InternalContractStateTrait as ERC721_ownersInternalContractStateTrait,
   _token_approvals::InternalContractStateTrait as ERC721_token_approvalsInternalContractStateTrait,
 };
-use rules_erc721::erc721::interface::{ IERC721, IERC721Camel };
+use rules_erc721::erc721::interface::{ IERC721, IERC721Camel, IERC721Metadata, IERC721MetadataCamel };
 
 use super::utils;
 use super::mocks::account::{ Account, CamelAccount };

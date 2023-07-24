@@ -39,7 +39,7 @@ trait IERC721<TContractState> {
 }
 
 #[starknet::interface]
-trait IERC721Camel<TContractState> {
+trait IERC721CamelOnly<TContractState> {
   fn balanceOf(self: @TContractState, account: starknet::ContractAddress) -> u256;
 
   fn ownerOf(self: @TContractState, tokenId: u256) -> starknet::ContractAddress;
@@ -70,6 +70,40 @@ trait IERC721Camel<TContractState> {
   fn setApprovalForAll(ref self: TContractState, operator: starknet::ContractAddress, approved: bool);
 }
 
+#[starknet::interface]
+trait IERC721Camel<TContractState> {
+  fn balanceOf(self: @TContractState, account: starknet::ContractAddress) -> u256;
+
+  fn ownerOf(self: @TContractState, tokenId: u256) -> starknet::ContractAddress;
+
+  fn getApproved(self: @TContractState, tokenId: u256) -> starknet::ContractAddress;
+
+  fn isApprovedForAll(
+    self: @TContractState,
+    owner: starknet::ContractAddress,
+    operator: starknet::ContractAddress
+  ) -> bool;
+
+  fn transferFrom(
+    ref self: TContractState,
+    from: starknet::ContractAddress,
+    to: starknet::ContractAddress,
+    tokenId: u256
+  );
+
+  fn safeTransferFrom(
+    ref self: TContractState,
+    from: starknet::ContractAddress,
+    to: starknet::ContractAddress,
+    tokenId: u256,
+    data: Span<felt252>
+  );
+
+  fn approve(ref self: TContractState, to: starknet::ContractAddress, token_id: u256);
+
+  fn setApprovalForAll(ref self: TContractState, operator: starknet::ContractAddress, approved: bool);
+}
+
 // ERC721 Metadata
 
 #[starknet::interface]
@@ -82,7 +116,16 @@ trait IERC721Metadata<TContractState> {
 }
 
 #[starknet::interface]
+trait IERC721MetadataCamelOnly<TContractState> {
+  fn tokenUri(self: @TContractState, tokenId: u256) -> felt252;
+}
+
+#[starknet::interface]
 trait IERC721MetadataCamel<TContractState> {
+  fn name(self: @TContractState) -> felt252;
+
+  fn symbol(self: @TContractState) -> felt252;
+
   fn tokenUri(self: @TContractState, tokenId: u256) -> felt252;
 }
 

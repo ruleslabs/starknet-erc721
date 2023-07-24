@@ -56,7 +56,7 @@ mod ERC721 {
   use rules_erc721::erc721::interface::{ IERC721, IERC721Metadata };
 
   use rules_utils::introspection::src5::SRC5;
-  use rules_utils::introspection::interface::{ ISRC5 };
+  use rules_utils::introspection::interface::{ ISRC5, ISRC5Camel };
 
   // Dispatchers
   use rules_erc721::erc721::dual_erc721_receiver::{ DualCaseERC721Receiver, DualCaseERC721ReceiverTrait };
@@ -194,7 +194,7 @@ mod ERC721 {
   //
 
   #[external(v0)]
-  impl IERC721CamelImpl of interface::IERC721Camel<ContractState> {
+  impl IERC721CamelOnlyImpl of interface::IERC721CamelOnly<ContractState> {
     fn balanceOf(self: @ContractState, account: starknet::ContractAddress) -> u256 {
       self.balance_of(:account)
     }
@@ -264,7 +264,7 @@ mod ERC721 {
   //
 
   #[external(v0)]
-  impl IERC721MetadataCamelImpl of interface::IERC721MetadataCamel<ContractState> {
+  impl IERC721MetadataCamelOnlyImpl of interface::IERC721MetadataCamelOnly<ContractState> {
     fn tokenUri(self: @ContractState, tokenId: u256) -> felt252 {
       self.token_uri(token_id: tokenId)
     }
@@ -287,6 +287,17 @@ mod ERC721 {
 
         src5_self.supports_interface(:interface_id)
       }
+    }
+  }
+
+  //
+  // ISRC5Camel impl
+  //
+
+  #[external(v0)]
+  impl ISRC5CamelImpl of ISRC5Camel<ContractState> {
+    fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
+      self.supports_interface(interface_id: interfaceId)
     }
   }
 

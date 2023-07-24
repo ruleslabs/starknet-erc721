@@ -5,11 +5,11 @@ use rules_utils::utils::serde::SerdeTraitExt;
 // locals
 use rules_erc721::erc721::interface::IERC721_ID;
 
-use rules_erc721::tests::mocks::erc721_mocks::{ SnakeERC721Mock, CamelERC721Mock, SnakeERC721PanicMock, CamelERC721PanicMock };
-use rules_erc721::tests::mocks::erc721_receiver::{ ERC721Receiver, SUCCESS, FAILURE };
-use rules_erc721::tests::mocks::non_implementing_mock::NonImplementingMock;
+use super::mocks::erc721_mocks::{ SnakeERC721Mock, CamelERC721Mock, SnakeERC721PanicMock, CamelERC721PanicMock };
+use super::mocks::erc721_receiver_mocks::{ SnakeERC721ReceiverMock, SUCCESS, FAILURE };
+use super::mocks::non_implementing_mock::NonImplementingMock;
 
-use rules_erc721::tests::utils;
+use super::utils;
 
 // Dispatchers
 use rules_erc721::erc721::dual_erc721::{ DualCaseERC721, DualCaseERC721Trait, };
@@ -102,7 +102,7 @@ fn setup_erc721_panic() -> (DualCaseERC721, DualCaseERC721) {
 }
 
 fn setup_receiver() -> starknet::ContractAddress {
-  utils::deploy(ERC721Receiver::TEST_CLASS_HASH, ArrayTrait::new())
+  utils::deploy(SnakeERC721ReceiverMock::TEST_CLASS_HASH, ArrayTrait::new())
 }
 
 //

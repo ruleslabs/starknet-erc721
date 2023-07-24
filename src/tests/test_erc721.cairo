@@ -17,10 +17,13 @@ use rules_erc721::erc721::interface::{ IERC721, IERC721CamelOnly, IERC721Metadat
 
 use super::utils;
 use super::mocks::account::{ Account, CamelAccount };
-use super::mocks::erc721_receiver::{ ERC721Receiver, CamelERC721Receiver };
-use super::mocks::erc721_receiver::ERC721NonReceiver;
-use super::mocks::erc721_receiver::SUCCESS;
-use super::mocks::erc721_receiver::FAILURE;
+use super::mocks::erc721_receiver_mocks::{
+  SUCCESS,
+  FAILURE,
+  ERC721NonReceiver,
+  SnakeERC721ReceiverMock,
+  CamelERC721ReceiverMock,
+};
 
 const NAME: felt252 = 111;
 const SYMBOL: felt252 = 222;
@@ -78,11 +81,11 @@ fn setup_and_mint() -> ERC721ContractState {
 }
 
 fn setup_receiver() -> starknet::ContractAddress {
-  utils::deploy(ERC721Receiver::TEST_CLASS_HASH, ArrayTrait::new())
+  utils::deploy(SnakeERC721ReceiverMock::TEST_CLASS_HASH, ArrayTrait::new())
 }
 
 fn setup_camel_receiver() -> starknet::ContractAddress {
-  utils::deploy(CamelERC721Receiver::TEST_CLASS_HASH, ArrayTrait::new())
+  utils::deploy(CamelERC721ReceiverMock::TEST_CLASS_HASH, ArrayTrait::new())
 }
 
 fn setup_account() -> starknet::ContractAddress {

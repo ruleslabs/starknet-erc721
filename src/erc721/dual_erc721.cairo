@@ -1,5 +1,4 @@
 use array::ArrayTrait;
-use starknet::ContractAddress;
 use starknet::SyscallResultTrait;
 
 // locals
@@ -44,7 +43,7 @@ mod selectors {
 
 #[derive(Copy, Drop)]
 struct DualCaseERC721 {
-  contract_address: ContractAddress
+  contract_address: starknet::ContractAddress
 }
 
 trait DualCaseERC721Trait {
@@ -54,24 +53,33 @@ trait DualCaseERC721Trait {
 
   fn token_uri(self: @DualCaseERC721, token_id: u256) -> felt252;
 
-  fn balance_of(self: @DualCaseERC721, account: ContractAddress) -> u256;
+  fn balance_of(self: @DualCaseERC721, account: starknet::ContractAddress) -> u256;
 
-  fn owner_of(self: @DualCaseERC721, token_id: u256) -> ContractAddress;
+  fn owner_of(self: @DualCaseERC721, token_id: u256) -> starknet::ContractAddress;
 
-  fn get_approved(self: @DualCaseERC721, token_id: u256) -> ContractAddress;
+  fn get_approved(self: @DualCaseERC721, token_id: u256) -> starknet::ContractAddress;
 
-  fn approve(self: @DualCaseERC721, to: ContractAddress, token_id: u256);
+  fn approve(self: @DualCaseERC721, to: starknet::ContractAddress, token_id: u256);
 
-  fn set_approval_for_all(self: @DualCaseERC721, operator: ContractAddress, approved: bool);
+  fn set_approval_for_all(self: @DualCaseERC721, operator: starknet::ContractAddress, approved: bool);
 
-  fn transfer_from(self: @DualCaseERC721, from: ContractAddress, to: ContractAddress, token_id: u256);
+  fn transfer_from(
+    self: @DualCaseERC721,
+    from: starknet::ContractAddress,
+    to: starknet::ContractAddress,
+    token_id: u256
+  );
 
-  fn is_approved_for_all(self: @DualCaseERC721, owner: ContractAddress, operator: ContractAddress) -> bool;
+  fn is_approved_for_all(
+    self: @DualCaseERC721,
+    owner: starknet::ContractAddress,
+    operator: starknet::ContractAddress
+  ) -> bool;
 
   fn safe_transfer_from(
     self: @DualCaseERC721,
-    from: ContractAddress,
-    to: ContractAddress,
+    from: starknet::ContractAddress,
+    to: starknet::ContractAddress,
     token_id: u256,
     data: Span<felt252>
   );
@@ -98,7 +106,7 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
       .unwrap_and_cast()
   }
 
-  fn balance_of(self: @DualCaseERC721, account: ContractAddress) -> u256 {
+  fn balance_of(self: @DualCaseERC721, account: starknet::ContractAddress) -> u256 {
     let mut args = ArrayTrait::new();
     args.append_serde(account);
 
@@ -106,7 +114,7 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
       .unwrap_and_cast()
   }
 
-  fn owner_of(self: @DualCaseERC721, token_id: u256) -> ContractAddress {
+  fn owner_of(self: @DualCaseERC721, token_id: u256) -> starknet::ContractAddress {
     let mut args = ArrayTrait::new();
     args.append_serde(token_id);
 
@@ -114,7 +122,7 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
       .unwrap_and_cast()
   }
 
-  fn get_approved(self: @DualCaseERC721, token_id: u256) -> ContractAddress {
+  fn get_approved(self: @DualCaseERC721, token_id: u256) -> starknet::ContractAddress {
     let mut args = ArrayTrait::new();
     args.append_serde(token_id);
 
@@ -122,38 +130,11 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
       .unwrap_and_cast()
   }
 
-  fn approve(self: @DualCaseERC721, to: ContractAddress, token_id: u256) {
-    let mut args = ArrayTrait::new();
-    args.append_serde(to);
-    args.append_serde(token_id);
-
-    starknet::call_contract_syscall(*self.contract_address, selectors::approve, args.span()).unwrap_syscall();
-  }
-
-  fn set_approval_for_all(self: @DualCaseERC721, operator: ContractAddress, approved: bool) {
-    let mut args = ArrayTrait::new();
-    args.append_serde(operator);
-    args.append_serde(approved);
-
-    try_selector_with_fallback(
-      *self.contract_address,
-      selectors::set_approval_for_all,
-      selectors::setApprovalForAll,
-      args.span()
-    ).unwrap_syscall();
-  }
-
-  fn transfer_from(self: @DualCaseERC721, from: ContractAddress, to: ContractAddress, token_id: u256) {
-    let mut args = ArrayTrait::new();
-    args.append_serde(from);
-    args.append_serde(to);
-    args.append_serde(token_id);
-
-    try_selector_with_fallback(*self.contract_address, selectors::transfer_from, selectors::transferFrom, args.span())
-      .unwrap_syscall();
-  }
-
-  fn is_approved_for_all(self: @DualCaseERC721, owner: ContractAddress, operator: ContractAddress) -> bool {
+  fn is_approved_for_all(
+    self: @DualCaseERC721,
+    owner: starknet::ContractAddress,
+    operator: starknet::ContractAddress
+  ) -> bool {
     let mut args = ArrayTrait::new();
     args.append_serde(owner);
     args.append_serde(operator);
@@ -166,10 +147,46 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
     ).unwrap_and_cast()
   }
 
+  fn approve(self: @DualCaseERC721, to: starknet::ContractAddress, token_id: u256) {
+    let mut args = ArrayTrait::new();
+    args.append_serde(to);
+    args.append_serde(token_id);
+
+    starknet::call_contract_syscall(*self.contract_address, selectors::approve, args.span()).unwrap_syscall();
+  }
+
+  fn set_approval_for_all(self: @DualCaseERC721, operator: starknet::ContractAddress, approved: bool) {
+    let mut args = ArrayTrait::new();
+    args.append_serde(operator);
+    args.append_serde(approved);
+
+    try_selector_with_fallback(
+      *self.contract_address,
+      selectors::set_approval_for_all,
+      selectors::setApprovalForAll,
+      args.span()
+    ).unwrap_syscall();
+  }
+
+  fn transfer_from(
+    self: @DualCaseERC721,
+    from: starknet::ContractAddress,
+    to: starknet::ContractAddress,
+    token_id: u256
+  ) {
+    let mut args = ArrayTrait::new();
+    args.append_serde(from);
+    args.append_serde(to);
+    args.append_serde(token_id);
+
+    try_selector_with_fallback(*self.contract_address, selectors::transfer_from, selectors::transferFrom, args.span())
+      .unwrap_syscall();
+  }
+
   fn safe_transfer_from(
     self: @DualCaseERC721,
-    from: ContractAddress,
-    to: ContractAddress,
+    from: starknet::ContractAddress,
+    to: starknet::ContractAddress,
     token_id: u256,
     data: Span<felt252>
   ) {

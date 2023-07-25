@@ -11,10 +11,9 @@ use super::mocks::erc721_receiver_mocks::{
 };
 use super::mocks::non_implementing_mock::NonImplementingMock;
 
-use rules_erc721::erc721::interface::{ IERC721_RECEIVER_ID };
+use rules_erc721::erc721::interface::IERC721_RECEIVER_ID;
 
 use super::utils;
-
 
 // Dispatchers
 use rules_erc721::erc721::interface::{
@@ -92,7 +91,7 @@ fn setup_erc721_receiver_panic() -> (DualCaseERC721Receiver, DualCaseERC721Recei
 //
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_dual_on_erc721_received() {
   let (dispatcher, _) = setup_snake_receiver();
 
@@ -103,16 +102,7 @@ fn test_dual_on_erc721_received() {
 }
 
 #[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
-fn test_dual_no_on_erc721_received() {
-  let dispatcher = setup_non_erc721_receiver();
-
-  dispatcher.on_erc721_received(OPERATOR(), OWNER(), TOKEN_ID, DATA(true));
-}
-
-#[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
 fn test_dual_on_erc721_received_exists_and_panics() {
   let (dispatcher, _) = setup_erc721_receiver_panic();
@@ -125,7 +115,7 @@ fn test_dual_on_erc721_received_exists_and_panics() {
 //
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_dual_onERC721Received() {
   let (dispatcher, _) = setup_camel_receiver();
 
@@ -137,10 +127,23 @@ fn test_dual_onERC721Received() {
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
 fn test_dual_onERC721Received_exists_and_panics() {
   let (_, dispatcher) = setup_erc721_receiver_panic();
+
+  dispatcher.on_erc721_received(OPERATOR(), OWNER(), TOKEN_ID, DATA(true));
+}
+
+//
+// Non ERC721 receiver
+//
+
+#[test]
+#[available_gas(20000000)]
+#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
+fn test_dual_no_on_erc721_received() {
+  let dispatcher = setup_non_erc721_receiver();
 
   dispatcher.on_erc721_received(OPERATOR(), OWNER(), TOKEN_ID, DATA(true));
 }

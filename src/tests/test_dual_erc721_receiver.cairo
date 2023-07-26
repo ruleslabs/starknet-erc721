@@ -31,13 +31,11 @@ use rules_erc721::erc721::dual_erc721_receiver::{ DualCaseERC721Receiver, DualCa
 const TOKEN_ID: u256 = 7;
 
 fn DATA(success: bool) -> Span<felt252> {
-  let mut data = ArrayTrait::new();
   if success {
-    data.append(SUCCESS);
+    array![SUCCESS].span()
   } else {
-    data.append(FAILURE);
+    array![FAILURE].span()
   }
-  data.span()
 }
 
 fn OWNER() -> starknet::ContractAddress {
@@ -53,19 +51,19 @@ fn OPERATOR() -> starknet::ContractAddress {
 //
 
 fn setup_snake_receiver() -> (DualCaseERC721Receiver, IERC721ReceiverDispatcher) {
-  let contract_address = utils::deploy(SnakeERC721ReceiverMock::TEST_CLASS_HASH, calldata: ArrayTrait::new());
+  let contract_address = utils::deploy(SnakeERC721ReceiverMock::TEST_CLASS_HASH, calldata: array![]);
 
   (DualCaseERC721Receiver { contract_address }, IERC721ReceiverDispatcher { contract_address })
 }
 
 fn setup_camel_receiver() -> (DualCaseERC721Receiver, IERC721ReceiverCamelDispatcher) {
-  let contract_address = utils::deploy(CamelERC721ReceiverMock::TEST_CLASS_HASH, calldata: ArrayTrait::new());
+  let contract_address = utils::deploy(CamelERC721ReceiverMock::TEST_CLASS_HASH, calldata: array![]);
 
   (DualCaseERC721Receiver { contract_address }, IERC721ReceiverCamelDispatcher { contract_address })
 }
 
 fn setup_non_erc721_receiver() -> DualCaseERC721Receiver {
-  let contract_address = utils::deploy(NonImplementingMock::TEST_CLASS_HASH, calldata: ArrayTrait::new());
+  let contract_address = utils::deploy(NonImplementingMock::TEST_CLASS_HASH, calldata: array![]);
 
   DualCaseERC721Receiver { contract_address }
 }
@@ -73,11 +71,11 @@ fn setup_non_erc721_receiver() -> DualCaseERC721Receiver {
 fn setup_erc721_receiver_panic() -> (DualCaseERC721Receiver, DualCaseERC721Receiver) {
   let snake_contract_address = utils::deploy(
     SnakeERC721ReceiverPanicMock::TEST_CLASS_HASH,
-    calldata: ArrayTrait::new()
+    calldata: array![]
   );
   let camel_contract_address = utils::deploy(
     CamelERC721ReceiverPanicMock::TEST_CLASS_HASH,
-    calldata: ArrayTrait::new()
+    calldata: array![]
   );
 
   (

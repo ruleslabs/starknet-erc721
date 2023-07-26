@@ -51,13 +51,11 @@ fn OTHER() -> starknet::ContractAddress {
 }
 
 fn DATA(success: bool) -> Span<felt252> {
-  let mut data = ArrayTrait::new();
   if success {
-    data.append(SUCCESS);
+    array![SUCCESS].span()
   } else {
-    data.append(FAILURE);
+    array![FAILURE].span()
   }
-  data.span()
 }
 
 //
@@ -81,19 +79,19 @@ fn setup_and_mint() -> ERC721ContractState {
 }
 
 fn setup_receiver() -> starknet::ContractAddress {
-  utils::deploy(SnakeERC721ReceiverMock::TEST_CLASS_HASH, ArrayTrait::new())
+  utils::deploy(SnakeERC721ReceiverMock::TEST_CLASS_HASH, array![])
 }
 
 fn setup_camel_receiver() -> starknet::ContractAddress {
-  utils::deploy(CamelERC721ReceiverMock::TEST_CLASS_HASH, ArrayTrait::new())
+  utils::deploy(CamelERC721ReceiverMock::TEST_CLASS_HASH, array![])
 }
 
 fn setup_account() -> starknet::ContractAddress {
-  utils::deploy(Account::TEST_CLASS_HASH, calldata: ArrayTrait::new())
+  utils::deploy(Account::TEST_CLASS_HASH, calldata: array![])
 }
 
 fn setup_camel_account() -> starknet::ContractAddress {
-  utils::deploy(CamelAccount::TEST_CLASS_HASH, calldata: ArrayTrait::new())
+  utils::deploy(CamelAccount::TEST_CLASS_HASH, calldata: array![])
 }
 
 //
@@ -791,7 +789,7 @@ fn test_safeTransferFrom_to_receiver_failure_camel() {
 fn test_safe_transfer_from_to_non_receiver() {
   let mut erc721_self = setup_and_mint();
 
-  let recipient = utils::deploy(ERC721NonReceiver::TEST_CLASS_HASH, ArrayTrait::new());
+  let recipient = utils::deploy(ERC721NonReceiver::TEST_CLASS_HASH, array![]);
   let token_id = TOKEN_ID;
   let owner = OWNER();
 
@@ -805,7 +803,7 @@ fn test_safe_transfer_from_to_non_receiver() {
 fn test_safeTransferFrom_to_non_receiver() {
   let mut erc721_self = setup_and_mint();
 
-  let recipient = utils::deploy(ERC721NonReceiver::TEST_CLASS_HASH, ArrayTrait::new());
+  let recipient = utils::deploy(ERC721NonReceiver::TEST_CLASS_HASH, array![]);
   let token_id = TOKEN_ID;
   let owner = OWNER();
 
@@ -1257,7 +1255,7 @@ fn test__safe_mint_to_account_camel() {
 fn test__safe_mint_to_non_receiver() {
   let mut erc721_self = setup();
 
-  let recipient = utils::deploy(ERC721NonReceiver::TEST_CLASS_HASH, ArrayTrait::new());
+  let recipient = utils::deploy(ERC721NonReceiver::TEST_CLASS_HASH, array![]);
   let token_id = TOKEN_ID;
 
   assert_state_before_mint(@erc721_self, recipient);

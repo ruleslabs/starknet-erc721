@@ -46,13 +46,11 @@ fn OPERATOR() -> starknet::ContractAddress {
 }
 
 fn DATA(success: bool) -> Span<felt252> {
-  let mut data = ArrayTrait::new();
   if success {
-    data.append_serde(SUCCESS);
+    array![SUCCESS].span()
   } else {
-    data.append_serde(FAILURE);
+    array![FAILURE].span()
   }
-  data.span()
 }
 
 //
@@ -60,20 +58,20 @@ fn DATA(success: bool) -> Span<felt252> {
 //
 
 fn setup_snake() -> (DualCaseERC721, IERC721Dispatcher) {
-  let mut calldata = ArrayTrait::new();
+  let mut calldata = array![];
   calldata.append_serde(NAME);
   calldata.append_serde(SYMBOL);
   calldata.append_serde(TOKEN_ID);
   calldata.append_serde(URI);
-  testing::set_caller_address(OWNER());
 
+  testing::set_caller_address(OWNER());
   let contract_address = utils::deploy(SnakeERC721Mock::TEST_CLASS_HASH, calldata);
 
   (DualCaseERC721 { contract_address }, IERC721Dispatcher { contract_address })
 }
 
 fn setup_camel() -> (DualCaseERC721, IERC721CamelOnlyDispatcher) {
-  let mut calldata = ArrayTrait::new();
+  let mut calldata = array![];
   calldata.append_serde(NAME);
   calldata.append_serde(SYMBOL);
   calldata.append_serde(TOKEN_ID);
@@ -86,14 +84,14 @@ fn setup_camel() -> (DualCaseERC721, IERC721CamelOnlyDispatcher) {
 }
 
 fn setup_non_erc721() -> DualCaseERC721 {
-  let contract_address = utils::deploy(NonImplementingMock::TEST_CLASS_HASH, calldata: ArrayTrait::new());
+  let contract_address = utils::deploy(NonImplementingMock::TEST_CLASS_HASH, calldata: array![]);
 
   DualCaseERC721 { contract_address }
 }
 
 fn setup_erc721_panic() -> (DualCaseERC721, DualCaseERC721) {
-  let snake_contract_address = utils::deploy(SnakeERC721PanicMock::TEST_CLASS_HASH, ArrayTrait::new());
-  let camel_contract_address = utils::deploy(CamelERC721PanicMock::TEST_CLASS_HASH, ArrayTrait::new());
+  let snake_contract_address = utils::deploy(SnakeERC721PanicMock::TEST_CLASS_HASH, array![]);
+  let camel_contract_address = utils::deploy(CamelERC721PanicMock::TEST_CLASS_HASH, array![]);
 
   (
     DualCaseERC721 { contract_address: snake_contract_address },
@@ -102,7 +100,7 @@ fn setup_erc721_panic() -> (DualCaseERC721, DualCaseERC721) {
 }
 
 fn setup_receiver() -> starknet::ContractAddress {
-  utils::deploy(SnakeERC721ReceiverMock::TEST_CLASS_HASH, ArrayTrait::new())
+  utils::deploy(SnakeERC721ReceiverMock::TEST_CLASS_HASH, array![])
 }
 
 //

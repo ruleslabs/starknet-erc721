@@ -10,8 +10,8 @@ use rules_erc721::erc721::erc721::ERC721;
 use rules_erc721::erc721::erc721::ERC721::{
   ContractState as ERC721ContractState,
   InternalTrait as ERC721InternalTrait,
-  _owners::InternalContractStateTrait as ERC721_ownersInternalContractStateTrait,
-  _token_approvals::InternalContractStateTrait as ERC721_token_approvalsInternalContractStateTrait,
+  _owners::InternalContractMemberStateTrait as ERC721_ownersInternalContractMemberStateTrait,
+  _token_approvals::InternalContractMemberStateTrait as ERC721_token_approvalsInternalContractMemberStateTrait,
 };
 use rules_erc721::erc721::interface::{ IERC721, IERC721CamelOnly, IERC721Metadata, IERC721MetadataCamelOnly };
 

@@ -5,7 +5,7 @@ use zeroable::Zeroable;
 use rules_utils::introspection::interface::{ ISRC5, ISRC5_ID };
 
 // locals
-use erc721::erc721;
+use erc721::erc721::{ interface as erc721_interface };
 use erc721::erc721::erc721::ERC721;
 use erc721::erc721::erc721::ERC721::{
   ContractState as ERC721ContractState,
@@ -123,8 +123,8 @@ fn test_initialize() {
   assert(erc721_self.symbol() == SYMBOL, 'Symbol should be SYMBOL');
   assert(erc721_self.balance_of(OWNER()) == 0, 'Balance should be zero');
 
-  assert(erc721_self.supports_interface(erc721::interface::IERC721_ID), 'Missing interface ID');
-  assert(erc721_self.supports_interface(erc721::interface::IERC721_METADATA_ID), 'missing interface ID');
+  assert(erc721_self.supports_interface(erc721_interface::IERC721_ID), 'Missing interface ID');
+  assert(erc721_self.supports_interface(erc721_interface::IERC721_METADATA_ID), 'missing interface ID');
   assert(erc721_self.supports_interface(ISRC5_ID), 'missing interface ID');
 }
 

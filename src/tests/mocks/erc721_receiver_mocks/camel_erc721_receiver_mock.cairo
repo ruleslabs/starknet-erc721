@@ -6,7 +6,7 @@ mod CamelERC721ReceiverMock {
   use array::{ SpanTrait, SpanSerde };
 
   // locals
-  use rules_erc721::erc721::interface::{ IERC721ReceiverCamel, IERC721_RECEIVER_ID };
+  use erc721::erc721::interface::{ IERC721ReceiverCamel, IERC721_RECEIVER_ID };
   use rules_utils::introspection::src5::SRC5;
   use rules_utils::introspection::interface::ISRC5;
   use rules_utils::introspection::src5::SRC5::InternalTrait;

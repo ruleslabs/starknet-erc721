@@ -4,7 +4,7 @@ mod SnakeERC721PanicMock {
   use rules_utils::introspection::interface::ISRC5;
 
   //locals
-  use rules_erc721::erc721::interface::{ IERC721, IERC721Metadata };
+  use erc721::erc721::interface::{ IERC721, IERC721Metadata };
 
   //
   // Storage
@@ -112,7 +112,7 @@ mod CamelERC721PanicMock {
   use rules_utils::introspection::interface::ISRC5Camel;
 
   //locals
-  use rules_erc721::erc721::interface::{
+  use erc721::erc721::interface::{
     IERC721,
     IERC721Camel,
     IERC721CamelOnly,

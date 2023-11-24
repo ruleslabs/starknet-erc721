@@ -11,18 +11,18 @@ use super::mocks::erc721_receiver_mocks::{
 };
 use super::mocks::non_implementing_mock::NonImplementingMock;
 
-use rules_erc721::erc721::interface::IERC721_RECEIVER_ID;
+use erc721::erc721::interface::IERC721_RECEIVER_ID;
 
 use super::utils;
 
 // Dispatchers
-use rules_erc721::erc721::interface::{
+use erc721::erc721::interface::{
   IERC721ReceiverDispatcher,
   IERC721ReceiverDispatcherTrait,
   IERC721ReceiverCamelDispatcher,
   IERC721ReceiverCamelDispatcherTrait,
 };
-use rules_erc721::erc721::dual_erc721_receiver::{ DualCaseERC721Receiver, DualCaseERC721ReceiverTrait };
+use erc721::erc721::dual_erc721_receiver::{ DualCaseERC721Receiver, DualCaseERC721ReceiverTrait };
 
 //
 // Constants

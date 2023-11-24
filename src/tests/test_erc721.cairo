@@ -5,15 +5,15 @@ use zeroable::Zeroable;
 use rules_utils::introspection::interface::{ ISRC5, ISRC5_ID };
 
 // locals
-use rules_erc721::erc721;
-use rules_erc721::erc721::erc721::ERC721;
-use rules_erc721::erc721::erc721::ERC721::{
+use erc721::erc721;
+use erc721::erc721::erc721::ERC721;
+use erc721::erc721::erc721::ERC721::{
   ContractState as ERC721ContractState,
   InternalTrait as ERC721InternalTrait,
   _owners::InternalContractMemberStateTrait as ERC721_ownersInternalContractMemberStateTrait,
   _token_approvals::InternalContractMemberStateTrait as ERC721_token_approvalsInternalContractMemberStateTrait,
 };
-use rules_erc721::erc721::interface::{ IERC721, IERC721CamelOnly, IERC721Metadata, IERC721MetadataCamelOnly };
+use erc721::erc721::interface::{ IERC721, IERC721CamelOnly, IERC721Metadata, IERC721MetadataCamelOnly };
 
 use super::utils;
 use super::mocks::account::{ Account, CamelAccount };

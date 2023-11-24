@@ -52,14 +52,14 @@ mod ERC721 {
   use rules_utils::introspection::dual_src5::{ DualCaseSRC5, DualCaseSRC5Trait };
 
   // locals
-  use rules_erc721::erc721::interface;
-  use rules_erc721::erc721::interface::{ IERC721, IERC721Metadata };
+  use erc721::erc721::interface;
+  use erc721::erc721::interface::{ IERC721, IERC721Metadata };
 
   use rules_utils::introspection::src5::SRC5;
   use rules_utils::introspection::interface::{ ISRC5, ISRC5Camel };
 
   // Dispatchers
-  use rules_erc721::erc721::dual_erc721_receiver::{ DualCaseERC721Receiver, DualCaseERC721ReceiverTrait };
+  use erc721::erc721::dual_erc721_receiver::{ DualCaseERC721Receiver, DualCaseERC721ReceiverTrait };
 
   //
   // Storage

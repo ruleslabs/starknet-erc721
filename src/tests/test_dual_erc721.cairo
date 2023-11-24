@@ -3,7 +3,7 @@ use starknet::testing;
 use rules_utils::utils::serde::SerdeTraitExt;
 
 // locals
-use rules_erc721::erc721::interface::IERC721_ID;
+use erc721::erc721::interface::IERC721_ID;
 
 use super::mocks::erc721_mocks::{ SnakeERC721Mock, CamelERC721Mock, SnakeERC721PanicMock, CamelERC721PanicMock };
 use super::mocks::erc721_receiver_mocks::{ SnakeERC721ReceiverMock, SUCCESS, FAILURE };
@@ -12,8 +12,8 @@ use super::mocks::non_implementing_mock::NonImplementingMock;
 use super::utils;
 
 // Dispatchers
-use rules_erc721::erc721::dual_erc721::{ DualCaseERC721, DualCaseERC721Trait, };
-use rules_erc721::erc721::interface::{
+use erc721::erc721::dual_erc721::{ DualCaseERC721, DualCaseERC721Trait, };
+use erc721::erc721::interface::{
   IERC721Dispatcher,
   IERC721DispatcherTrait,
   IERC721CamelOnlyDispatcher,

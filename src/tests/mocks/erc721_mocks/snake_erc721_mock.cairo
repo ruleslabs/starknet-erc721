@@ -3,9 +3,9 @@ mod SnakeERC721Mock {
   use rules_utils::introspection::interface::ISRC5;
 
   //locals
-  use rules_erc721::erc721::interface::{ IERC721, IERC721Metadata };
-  use rules_erc721::erc721::erc721::ERC721;
-  use rules_erc721::erc721::erc721::ERC721::InternalTrait as ERC721InternalTrait;
+  use erc721::erc721::interface::{ IERC721, IERC721Metadata };
+  use erc721::erc721::erc721::ERC721;
+  use erc721::erc721::erc721::ERC721::InternalTrait as ERC721InternalTrait;
 
   //
   // Storage

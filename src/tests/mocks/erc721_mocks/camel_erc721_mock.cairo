@@ -3,7 +3,7 @@ mod CamelERC721Mock {
   use rules_utils::introspection::interface::ISRC5Camel;
 
   //locals
-  use rules_erc721::erc721::interface::{
+  use erc721::erc721::interface::{
     IERC721,
     IERC721Camel,
     IERC721CamelOnly,
@@ -11,8 +11,8 @@ mod CamelERC721Mock {
     IERC721MetadataCamel,
     IERC721MetadataCamelOnly,
   };
-  use rules_erc721::erc721::erc721::ERC721;
-  use rules_erc721::erc721::erc721::ERC721::InternalTrait as ERC721InternalTrait;
+  use erc721::erc721::erc721::ERC721;
+  use erc721::erc721::erc721::ERC721::InternalTrait as ERC721InternalTrait;
 
   //
   // Storage
